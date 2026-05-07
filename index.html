@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcular Cuotas </title>
+    
+    <link rel="stylesheet" href="estilos.css"> 
+    <link rel="icon" href="logo PreEstamos.jpeg" type="image/png">
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="titulo-con-logo">
+            <img src="logo PreEstamos.jpeg" alt="logo PreEstamos.jpeg" class="logo-h1">
+            PreEstamos
+        </h1>
+
+        <div class="input-group">
+            <h3>CRÉDITOS PARA MODELOS A PARTIR DE 2010:</h3>
+            <input type="text" id="monto" oninput="calcular()" onchange="calcular()">
+        </div>
+
+        <div class="input-group">
+            <div id="tipoPrestamoContainer" class="button-group">
+                
+                <button type="button" 
+                        data-tasa="9" 
+                        data-tipo="PESOS"
+                        class="btn-prestamo active"
+                        onclick="seleccionarTasa(this, 9)">
+                    PESOS - AUTOPRENDA
+                </button>
+            </div>
+        </div>
+        <div id="tablaResultados">
+            </div>
+    </div>
+
+
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', calcular);
+        
+        // Función global para manejar la selección de la tasa desde los botones
+        function seleccionarTasa(elemento, tasa) {
+            // 1. Quitar la clase 'active' de todos los botones
+            const botones = document.querySelectorAll('.btn-prestamo');
+            botones.forEach(btn => btn.classList.remove('active'));
+
+            // 2. Añadir la clase 'active' al botón seleccionado
+            elemento.classList.add('active');
+            
+            // 3. Almacenar la tasa seleccionada en un atributo del contenedor
+            document.getElementById('tipoPrestamoContainer').dataset.tasaActiva = tasa;
+            
+            // 4. Recalcular la tabla
+            calcular();
+        }
+        
+        // Establecer la tasa inicial al cargar la página (9% por defecto)
+        document.addEventListener('DOMContentLoaded', () => {
+             document.getElementById('tipoPrestamoContainer').dataset.tasaActiva = 9;
+             calcular();
+        });
+    </script>
+</body>
+
+</html>
