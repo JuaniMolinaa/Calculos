@@ -12,7 +12,7 @@ const calcular = () => {
     const tipoMoneda = botonActivo ? botonActivo.dataset.tipo : 'PESOS';
 
     // 3. Lógica del LÍMITE DE CUOTAS
-    let limiteCuotas = 36;
+    let limiteCuotas = 24;
     if (tipoMoneda === 'DOLARES') {
         limiteCuotas = 48; // DÓLARES = límite de 48 cuotas.
     }
