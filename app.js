@@ -4,20 +4,19 @@ const calcular = () => {
     const montoLimpio = inputMonto.value.replace(/\./g, ''); 
     var monto = parseFloat(montoLimpio);
 
-    // 2. Obtención de la tasa activa y tipo de moneda desde los botones
+    // 2. Obtención de la tasa y moneda
     const tasaContenedor = document.getElementById('tipoPrestamoContainer');
     var aumentoMensualPorcentaje = parseFloat(tasaContenedor?.dataset.tasaActiva || 9); 
     
     const botonActivo = document.querySelector('.btn-prestamo.active');
-    const tipoMoneda = botonActivo ? botonActivo.dataset.tipo : 'PESOS';
+    const tipoMoneda = botonActivo ? (botonActivo.dataset.tipo || 'PESOS') : 'PESOS';
 
-    // 3. Lógica del LÍMITE DE CUOTAS
-    let limiteCuotas = 24;
+    // 3. Límite de cuotas
+    let limiteCuotas = 36;
     if (tipoMoneda === 'DOLARES') {
-        limiteCuotas = 48; // DÓLARES = límite de 48 cuotas.
+        limiteCuotas = 48;
     }
     
-    // Formato de números (puntos)
     const formatter = new Intl.NumberFormat('es-AR', {
         style: 'decimal',
         minimumFractionDigits: 0,
@@ -25,56 +24,60 @@ const calcular = () => {
     });
 
     const resultadosDiv = document.querySelector("#tablaResultados");
+    const destacadosDiv = document.querySelector("#cuotasDestacadas");
 
-    // validación del monto 
+    // Validación
     if (isNaN(monto) || inputMonto.value.trim() === '' || monto === 0) {
-        resultadosDiv.innerHTML = '<p>Ingrese un monto válido.</p>';
+        resultadosDiv.innerHTML = '<p style="color:red; background:#ffe0e0; border:1px solid red; padding:10px; text-align:center;">Ingrese un monto válido.</p>';
+        destacadosDiv.innerHTML = '';
         return;
     }
 
-    // muestra el monto con el formato de números (puntos)
     inputMonto.value = formatter.format(monto);
     
-    // 4. encabezado de la tabla
     let htmlTabla = `
         <table>
             <thead>
                 <tr>
                     <th>CUOTAS</th>
-                    <th>MONTO POR CUOTA EN ${tipoMoneda}</th>
+                    <th>VALOR EN ${tipoMoneda}</th>
                 </tr>
             </thead>
             <tbody>
     `;
-    
-    // 5. Itera de 12 hasta el límite de cuotas (24 o 48)
+
+    let htmlDestacados = '';
+
+    // 4. Bucle único para tabla y destacados
     for (let cuotas = 12; cuotas <= limiteCuotas; cuotas++) {
-        // Cálculo del aumento total: (número de cuotas * TASA_ACTIVA) / 100
         let aumentoCuotas = (cuotas * aumentoMensualPorcentaje) / 100;
-
-        // CÁLCULO DEL PRÉSTAMO
-        // monto final = monto original + interés total
         let montoFinal = monto * (1 + aumentoCuotas); 
-        
         let montoPorCuota = montoFinal / cuotas;
-
-        // redondea al siguiente número entero
         const montoPorCuotaEntero = Math.ceil(montoPorCuota);
+        const valorFormateado = formatter.format(montoPorCuotaEntero);
 
-        // 6. Añade  fila con el formato de números (puntos)
+        // Si es una cuota clave, la agregamos a destacados
+        if (cuotas === 12 || cuotas === 18 || cuotas === 24) {
+            htmlDestacados += `
+                <div class="card-destacada">
+                    <span class="titulo-card">${cuotas} CUOTAS</span>
+                    <span class="monto-card">$ ${valorFormateado}</span>
+                </div>
+            `;
+        }
+
+        // Fila de la tabla normal
         htmlTabla += `
             <tr>
                 <td>${cuotas}</td>
-                <td class="monto-final">$ ${formatter.format(montoPorCuotaEntero)}</td>
+                <td class="monto-final">$ ${valorFormateado}</td>
             </tr>
         `;
     }
 
-    // 7. cierra tabla e insertar
-    htmlTabla += `
-            </tbody>
-        </table>
-    `;
+    htmlTabla += `</tbody></table>`;
 
+    // 5. Renderizar
     resultadosDiv.innerHTML = htmlTabla;
+    destacadosDiv.innerHTML = htmlDestacados;
 }
